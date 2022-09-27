@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="PhotonLazerTag" target="11" />
+      <module name="PhotonLazerTag" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
