@@ -18,6 +18,8 @@ import javafx.scene.image.*;
 import java.io.*;
 import javafx.geometry.*;
 import javafx.scene.paint.*;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class Run extends Application {
 
@@ -28,6 +30,23 @@ public class Run extends Application {
      public void start(Stage stage) {
 		 try
 		 {
+            /*SPLASH SCENE*/
+            //load in splash image
+            BorderPane spRoot = new BorderPane(); 
+            InputStream spInput = Run.class.getClassLoader().getResourceAsStream("splash_screen.png");
+            Image spImage = new Image(spInput);
+            // set title for the stage
+            Scene spScene = new Scene(spRoot, 1366, 768 );
+            // Creates the background size in such a way that the image fits the screen
+            BackgroundSize spSize = new BackgroundSize(spImage.getWidth(), spImage.getHeight(), false, false, false, true);
+            // Creates a background image from the fetched image
+            BackgroundImage spBackgroundimage = new BackgroundImage(spImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, spSize);
+            // create Background
+            Background spBackground = new Background(spBackgroundimage);
+            // set the background of the borderpane
+            spRoot.setBackground(spBackground);
+
+            /*PLAYER ENTRY SCENE */
 			// set title for the stage
             stage.setTitle("Photon LazerTag");
             //Create root borderpane layout
@@ -53,7 +72,7 @@ public class Run extends Application {
             centerPane.getChildren().add(button);
             
             //create input stream for image
-            FileInputStream input = new FileInputStream("C:\\Users\\deess\\OneDrive - University of Arkansas\\Software engineering\\LaserTag.png");
+            InputStream input = Run.class.getClassLoader().getResourceAsStream("header.png");
 
             // create the image
             Image image = new Image(input);
@@ -127,9 +146,14 @@ public class Run extends Application {
 
             root.setCenter(centerPane);
 
-            // set the scene
-            stage.setScene(scene);
-  
+            // set the scene 
+            //splash scene first
+            stage.setScene(spScene);
+            stage.show();
+            //take splash screen away
+            PauseTransition pause = new PauseTransition(Duration.seconds(3));
+            pause.setOnFinished(e -> stage.setScene(scene));
+            pause.play();
             stage.show();
 		 }
 		 catch (Exception e) {
