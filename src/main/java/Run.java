@@ -2,7 +2,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
 
@@ -29,7 +28,7 @@ public class Run extends Application {
             System.out.println("DB connection successful");
         }
         catch (Exception e) {
-            System.out.println("DB connection failed");
+            System.out.println("DB connection failed " + e);
             return;
         }
 
@@ -38,6 +37,9 @@ public class Run extends Application {
 
         //Structure of updating table (Inside quotes, provide the SQL update statement)
         //stmt.executeUpdate("");
+
+        // Saving the players to the database
+        //PlayerDAO.getDAO().savePlayer(id, codename);
 
         //ResultSets are a table of data storing a result set
         //Below is an example of querying the whole player table
