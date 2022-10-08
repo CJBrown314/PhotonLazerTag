@@ -8,6 +8,8 @@ import java.sql.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -33,8 +35,14 @@ public class Run extends Application {
             /*SPLASH SCENE*/
             //load in splash image
             BorderPane spRoot = new BorderPane(); 
-            InputStream spInput = Run.class.getClassLoader().getResourceAsStream("splash_screen.png");
+            InputStream spInput = getClass().getClassLoader().getResourceAsStream("splash_screen.png");
+            //FileInputStream spInput = new FileInputStream("splash_screen.png");
+            if(spInput == null){
+                System.out.println("ERROR ERROR ERROR");
+                System.exit(0);
+            }
             Image spImage = new Image(spInput);
+            //Image spImage = new Image((String.valueOf(new File("splash_screen.png"))));
             // set title for the stage
             Scene spScene = new Scene(spRoot, 1366, 768 );
             // Creates the background size in such a way that the image fits the screen
@@ -69,10 +77,20 @@ public class Run extends Application {
   
             // create a button and add it to the center pane vbox
             Button button = new Button("Start Game");
+            button.setOnAction(new EventHandler<ActionEvent> (){
+                @Override
+                public void handle(ActionEvent event) {
+                    submitForm();
+                }
+            });
             centerPane.getChildren().add(button);
             
             //create input stream for image
-            InputStream input = Run.class.getClassLoader().getResourceAsStream("header.png");
+            InputStream input = getClass().getClassLoader().getResourceAsStream("header.png");
+            if(input == null){
+                System.out.println("ERROR ERROR");
+                System.exit(0);
+            }
 
             // create the image
             Image image = new Image(input);
@@ -164,22 +182,27 @@ public class Run extends Application {
 	 public static class Player {
 	 	private final SimpleStringProperty playerid;
 	 	
-	 	Player() {
+	 	private Player() {
 	 		playerid = new SimpleStringProperty("");
 	 	}
 	 	
-	 	Player(String pid) {
+	 	private Player(String pid) {
 	 		playerid = new SimpleStringProperty(pid);
 	 	}
 	 	
-	 	public SimpleStringProperty getPlayerID() {
-	 		return playerid;
+	 	public String getPlayerID() {
+	 		return playerid.get();
 	 	}
 	 	
 	 	public void setPlayerID(String pid) {
 	 		playerid.set(pid);
 	 	}
 	 }
+    
+    public void submitForm()
+    {
+        System.out.println("You have Submited the Form!");
+    }
 
     //Connects to the postgresql database
     private static Connection getConnection() throws URISyntaxException, SQLException {
