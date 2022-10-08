@@ -239,6 +239,28 @@ public class Run extends Application {
 
             }
         }
+        int k = 0;
+        while(blueteamplayers.getCellData(k)!= "")
+        {
+            boolean check = true;
+            int pass = Integer.parseInt((String)blueteamplayers.getCellData(k));
+            try {
+				check = checkDatabase(pass);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            i++;
+            if(check == false)
+            {
+                String newUser = popupBox(stage, pass);
+
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //send data to database here
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            }
+        }
         
     }
 
