@@ -1,11 +1,13 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,8 +22,10 @@ import javafx.scene.image.*;
 import java.io.*;
 import javafx.geometry.*;
 import javafx.scene.paint.*;
+import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import javafx.util.Callback;
 
 public class Run extends Application {
 
@@ -74,16 +78,6 @@ public class Run extends Application {
             Label label = new Label("Add Players to the Table: ");
             label.setTextFill(Color.BLACK);
             centerPane.getChildren().add(label);
-  
-            // create a button and add it to the center pane vbox
-            Button button = new Button("Start Game");
-            button.setOnAction(new EventHandler<ActionEvent> (){
-                @Override
-                public void handle(ActionEvent event) {
-                    submitForm();
-                }
-            });
-            centerPane.getChildren().add(button);
             
             //create input stream for image
             InputStream input = getClass().getClassLoader().getResourceAsStream("header.png");
@@ -117,7 +111,7 @@ public class Run extends Application {
                     public void handle(CellEditEvent<Player, String> t) {
                         ((Player) t.getTableView().getItems().get(
                                 t.getTablePosition().getRow())
-                                ).setPlayerID(t.getNewValue());
+                                ).setPlayerid(t.getNewValue());
                     }
                 }
             );
@@ -132,10 +126,21 @@ public class Run extends Application {
                     public void handle(CellEditEvent<Player, String> t) {
                         ((Player) t.getTableView().getItems().get(
                                 t.getTablePosition().getRow())
-                                ).setPlayerID(t.getNewValue());
+                                ).setPlayerid(t.getNewValue());
                     }
                 }
             );
+
+            //adds button and makes button functional
+            Button button = new Button("Start Game");
+            button.setOnAction(new EventHandler<ActionEvent> (){
+                @Override
+                public void handle(ActionEvent event) {
+                    submitForm(stage, greenteamplayers, blueteamplayers);
+                }
+            });
+            centerPane.getChildren().add(button);
+
             // create columns
             //TableColumn<Player, String> greenteamplayers = new TableColumn<Player, String>("Green Team Players");
             greenteamplayers.setPrefWidth(root.getWidth()/4);
@@ -180,7 +185,7 @@ public class Run extends Application {
 	 }
 	 
 	 public static class Player {
-	 	private final SimpleStringProperty playerid;
+	 	private final StringProperty playerid;
 	 	
 	 	private Player() {
 	 		playerid = new SimpleStringProperty("");
@@ -190,18 +195,75 @@ public class Run extends Application {
 	 		playerid = new SimpleStringProperty(pid);
 	 	}
 	 	
-	 	public String getPlayerID() {
+	 	public String getPlayerid() {
 	 		return playerid.get();
 	 	}
 	 	
-	 	public void setPlayerID(String pid) {
+	 	public void setPlayerid(String pid) {
 	 		playerid.set(pid);
 	 	}
+
+        public final StringProperty playeridpProperty()
+        {
+            return playerid;
+        }
 	 }
     
-    public void submitForm()
+    public void submitForm(Stage stage, TableColumn greenteamplayers, TableColumn blueteamplayers)
     {
-        System.out.println("You have Submited the Form!");
+        try{
+            scanDatabase();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        int i = 0;
+        while(greenteamplayers.getCellData(i)!= "")
+        {
+            boolean check = true;
+            int pass = Integer.parseInt((String)greenteamplayers.getCellData(i));
+            try {
+				check = checkDatabase(pass);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            i++;
+            if(check == false)
+            {
+                String newUser = popupBox(stage, pass);
+
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //send data to database here
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            }
+        }
+        
+    }
+
+    public String popupBox(Stage stage, int id)
+    {
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(stage);
+        VBox dialogVbox = new VBox(20);
+        Text user = new Text(id + " Enter Your User Name Below");
+        TextField un = new TextField();
+        Button userButton = new Button("Enter");
+        userButton.setOnAction(new EventHandler<ActionEvent> (){
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println(un.getText());
+                //sendBack = un.getText();
+                dialog.close();             
+            }
+        });
+        dialogVbox.getChildren().addAll(user,un,userButton);
+        Scene dialogScene = new Scene(dialogVbox, 300, 200);
+        dialog.setScene(dialogScene);
+        dialog.showAndWait();
+        return un.getText();
     }
 
     //Connects to the postgresql database
@@ -209,7 +271,38 @@ public class Run extends Application {
         return DriverManager.getConnection("jdbc:postgresql://ec2-54-167-186-198.compute-1.amazonaws.com:5432/dft3j59ofknctu?password=ca9dd4b2c75d650ec6feaa7d00fdc21ed253cf047fe2a61e4112a24ba9b152a9&sslmode=require&user=nvxbgefwqaulsc");
     }
 
-    public ResultSet queryDatabase() throws Exception {
+    public boolean checkDatabase(int y) throws Exception {
+        //Attempt a connection, and abort if it fails 
+        Connection connection;
+        try {
+            connection = getConnection();
+            System.out.println("DB connection successful");
+        }
+        catch (Exception e) {
+            System.out.println("DB connection failed");
+            return false;
+        }
+
+        //Statements are an interface representing SQL statements
+        Statement stmt = connection.createStatement();
+
+        //Structure of updating table (Inside quotes, provide the SQL update statement)
+        //stmt.executeUpdate("");
+
+        //ResultSets are a table of data storing a result set
+        System.out.println(y);
+        ResultSet resultSet = stmt.executeQuery("SELECT id FROM player WHERE id="+ y);
+
+        //return true when id exists in query
+        resultSet.next();
+        System.out.println(resultSet.getFetchSize());
+        if(resultSet.getFetchSize() > 0){
+            return true;
+        }
+        return false;
+    }
+
+    public ResultSet scanDatabase() throws Exception {
         //Attempt a connection, and abort if it fails 
         Connection connection;
         try {
