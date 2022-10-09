@@ -1,17 +1,14 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.net.URI;
+
 import java.net.URISyntaxException;
 import java.sql.*;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -25,30 +22,29 @@ import javafx.scene.paint.*;
 import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-import javafx.util.Callback;
 
 public class Run extends Application {
 
     private TableView table = new TableView();
-	 private final ObservableList<Player> data =FXCollections.observableArrayList();
-	 private final int TABLE_SIZE = 16; // total number of table fields
-	 @Override
-     public void start(Stage stage) {
-		 try
-		 {
+    private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
+    private final int TABLE_SIZE = 16; // total number of table fields
+
+    @Override
+    public void start(Stage stage) {
+        try {
             /*SPLASH SCENE*/
             //load in splash image
-            BorderPane spRoot = new BorderPane(); 
+            BorderPane spRoot = new BorderPane();
             InputStream spInput = getClass().getClassLoader().getResourceAsStream("splash_screen.png");
             //FileInputStream spInput = new FileInputStream("splash_screen.png");
-            if(spInput == null){
+            if (spInput == null) {
                 System.out.println("ERROR ERROR ERROR");
                 System.exit(0);
             }
             Image spImage = new Image(spInput);
             //Image spImage = new Image((String.valueOf(new File("splash_screen.png"))));
             // set title for the stage
-            Scene spScene = new Scene(spRoot, 1366, 768 );
+            Scene spScene = new Scene(spRoot, 1366, 768);
             // Creates the background size in such a way that the image fits the screen
             BackgroundSize spSize = new BackgroundSize(spImage.getWidth(), spImage.getHeight(), false, false, false, true);
             // Creates a background image from the fetched image
@@ -59,7 +55,7 @@ public class Run extends Application {
             spRoot.setBackground(spBackground);
 
             /*PLAYER ENTRY SCENE */
-			// set title for the stage
+            // set title for the stage
             stage.setTitle("Photon LazerTag");
             //Create root borderpane layout
             BorderPane root = new BorderPane();
@@ -78,17 +74,17 @@ public class Run extends Application {
             Label label = new Label("Add Players to the Table: ");
             label.setTextFill(Color.BLACK);
             centerPane.getChildren().add(label);
-            
+
             //create input stream for image
             InputStream input = getClass().getClassLoader().getResourceAsStream("header.png");
-            if(input == null){
+            if (input == null) {
                 System.out.println("ERROR ERROR");
                 System.exit(0);
             }
 
             // create the image
             Image image = new Image(input);
-  
+
             // Creates the background size in such a way that the image fits the screen
             BackgroundSize size = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, true);
             // Creates a background image from the fetched image
@@ -96,44 +92,45 @@ public class Run extends Application {
 
             // create Background
             Background background = new Background(backgroundimage);
-  
+
             // set the background of the borderpane
             root.setBackground(background);
-            
-            TableColumn<Player, String> greenteamplayers = new TableColumn("Green Team Players");
+
+            TableColumn<PlayerColumn, String> greenteamplayers = new TableColumn("Green Team Players");
             greenteamplayers.setMinWidth(100);
             greenteamplayers.setCellValueFactory(
-                new PropertyValueFactory<Player, String>("playerid"));
+                    new PropertyValueFactory<PlayerColumn, String>("leftPlayerID"));
             greenteamplayers.setCellFactory(TextFieldTableCell.forTableColumn());
             greenteamplayers.setOnEditCommit(
-                new EventHandler<CellEditEvent<Player, String>>() {
-                	@Override
-                    public void handle(CellEditEvent<Player, String> t) {
-                        ((Player) t.getTableView().getItems().get(
-                                t.getTablePosition().getRow())
-                                ).setPlayerid(t.getNewValue());
+                    new EventHandler<CellEditEvent<PlayerColumn, String>>() {
+                        @Override
+                        public void handle(CellEditEvent<PlayerColumn, String> t) {
+                            ((PlayerColumn) t.getTableView().getItems().get(
+                                    t.getTablePosition().getRow())
+                            ).setLeftPlayerID(t.getNewValue());
+                        }
                     }
-                }
             );
-            TableColumn<Player, String> blueteamplayers = new TableColumn("Blue Team Players");
+
+            TableColumn<PlayerColumn, String> blueteamplayers = new TableColumn("Blue Team Players");
             blueteamplayers.setMinWidth(100);
             blueteamplayers.setCellValueFactory(
-                new PropertyValueFactory<Player, String>("playerid"));
+                    new PropertyValueFactory<PlayerColumn, String>("rightPlayerID"));
             blueteamplayers.setCellFactory(TextFieldTableCell.forTableColumn());
             blueteamplayers.setOnEditCommit(
-                new EventHandler<CellEditEvent<Player, String>>() {
-                	@Override
-                    public void handle(CellEditEvent<Player, String> t) {
-                        ((Player) t.getTableView().getItems().get(
-                                t.getTablePosition().getRow())
-                                ).setPlayerid(t.getNewValue());
+                    new EventHandler<CellEditEvent<PlayerColumn, String>>() {
+                        @Override
+                        public void handle(CellEditEvent<PlayerColumn, String> t) {
+                            ((PlayerColumn) t.getTableView().getItems().get(
+                                    t.getTablePosition().getRow())
+                            ).setRightPlayerID(t.getNewValue());
+                        }
                     }
-                }
             );
 
             //adds button and makes button functional
             Button button = new Button("Start Game");
-            button.setOnAction(new EventHandler<ActionEvent> (){
+            button.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     submitForm(stage, greenteamplayers, blueteamplayers);
@@ -143,29 +140,27 @@ public class Run extends Application {
 
             // create columns
             //TableColumn<Player, String> greenteamplayers = new TableColumn<Player, String>("Green Team Players");
-            greenteamplayers.setPrefWidth(root.getWidth()/4);
+            greenteamplayers.setPrefWidth(root.getWidth() / 4);
             //greenteamplayers.setCellValueFactory(cellData -> cellData.getValue().getPlayerID());
-            
+
             //TableColumn<Player, String> blueteamplayers = new TableColumn<Player, String>("Blue Team Players");
-            blueteamplayers.setPrefWidth(root.getWidth()/4);
+            blueteamplayers.setPrefWidth(root.getWidth() / 4);
             //blueteamplayers.setCellValueFactory(cellData -> cellData.getValue().getPlayerID());
 
-            for(int i = 0; i < TABLE_SIZE; i++)
-            {
-            	data.add(new Player());
+            for (int i = 0; i < TABLE_SIZE; i++) {
+                data.add(new PlayerColumn());
             }
-            
+
             table.setItems(data);
-            
+
             // set table properties
             table.getColumns().addAll(greenteamplayers, blueteamplayers);
             //table.getItems().add(new TextField());
             table.setEditable(true);
-            table.setMaxHeight(root.getHeight()/2);
-            table.setMaxWidth(root.getWidth()/2);
+            table.setMaxHeight(root.getHeight() / 2);
+            table.setMaxWidth(root.getWidth() / 2);
             centerPane.getChildren().add(table);
-            
-            
+
 
             root.setCenter(centerPane);
 
@@ -178,37 +173,11 @@ public class Run extends Application {
             pause.setOnFinished(e -> stage.setScene(scene));
             pause.play();
             stage.show();
-		 }
-		 catch (Exception e) {
-			 System.out.println(e.getMessage());
-		 }
-	 }
-	 
-	 public static class Player {
-	 	private final StringProperty playerid;
-	 	
-	 	private Player() {
-	 		playerid = new SimpleStringProperty("");
-	 	}
-	 	
-	 	private Player(String pid) {
-	 		playerid = new SimpleStringProperty(pid);
-	 	}
-	 	
-	 	public String getPlayerid() {
-	 		return playerid.get();
-	 	}
-	 	
-	 	public void setPlayerid(String pid) {
-	 		playerid.set(pid);
-	 	}
-
-        public final StringProperty playeridpProperty()
-        {
-            return playerid;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-	 }
-    
+    }
+
     public void submitForm(Stage stage, TableColumn greenteamplayers, TableColumn blueteamplayers)
     {
         try{
@@ -216,52 +185,45 @@ public class Run extends Application {
         }catch(Exception e){
             e.printStackTrace();
         }
-        
+
         int i = 0;
-        while(greenteamplayers.getCellData(i)!= "")
+        while(greenteamplayers.getCellObservableValue(i).getValue() != "")
         {
             boolean check = true;
-            int pass = Integer.parseInt((String)greenteamplayers.getCellData(i));
+            int pass = Integer.parseInt((String)greenteamplayers.getCellObservableValue(i).getValue());
             try {
-				check = checkDatabase(pass);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                check = checkDatabase(pass);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             i++;
-            if(check == false)
+            if(!check)
             {
                 String newUser = popupBox(stage, pass);
-
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                //send data to database here
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+                PlayerDAO.getDAO().savePlayer(pass, stage);
             }
         }
+
         int k = 0;
-        while(blueteamplayers.getCellData(k)!= "")
+        while(blueteamplayers.getCellObservableValue(k).getValue() != "")
         {
             boolean check = true;
-            int pass = Integer.parseInt((String)blueteamplayers.getCellData(k));
+            int pass = Integer.parseInt((String)blueteamplayers.getCellObservableValue(k).getValue());
+            System.out.println("blue pass: " + pass);
             try {
-				check = checkDatabase(pass);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            i++;
-            if(check == false)
+                check = checkDatabase(pass);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            k++;
+            if(!check)
             {
                 String newUser = popupBox(stage, pass);
-
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                //send data to database here
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+                PlayerDAO.getDAO().savePlayer(pass, stage);
             }
         }
-        
+
     }
 
     public String popupBox(Stage stage, int id)
@@ -273,12 +235,12 @@ public class Run extends Application {
         Text user = new Text(id + " Enter Your User Name Below");
         TextField un = new TextField();
         Button userButton = new Button("Enter");
-        userButton.setOnAction(new EventHandler<ActionEvent> (){
+        userButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
                 System.out.println(un.getText());
                 //sendBack = un.getText();
-                dialog.close();             
+                dialog.close();
             }
         });
         dialogVbox.getChildren().addAll(user,un,userButton);
@@ -294,7 +256,7 @@ public class Run extends Application {
     }
 
     public boolean checkDatabase(int y) throws Exception {
-        //Attempt a connection, and abort if it fails 
+        //Attempt a connection, and abort if it fails
         Connection connection;
         try {
             connection = getConnection();
@@ -316,16 +278,12 @@ public class Run extends Application {
         ResultSet resultSet = stmt.executeQuery("SELECT id FROM player WHERE id="+ y);
 
         //return true when id exists in query
-        resultSet.next();
-        System.out.println(resultSet.getFetchSize());
-        if(resultSet.getFetchSize() > 0){
-            return true;
-        }
-        return false;
+        boolean hasNext = resultSet.next();
+        return hasNext;
     }
 
     public ResultSet scanDatabase() throws Exception {
-        //Attempt a connection, and abort if it fails 
+        //Attempt a connection, and abort if it fails
         Connection connection;
         try {
             connection = getConnection();
