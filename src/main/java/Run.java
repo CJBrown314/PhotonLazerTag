@@ -200,7 +200,7 @@ public class Run extends Application {
             if(!check)
             {
                 String newUser = popupBox(stage, pass);
-                PlayerDAO.getDAO().savePlayer(pass, stage);
+                PlayerDAO.getDAO().savePlayer(pass, newUser);
             }
         }
 
@@ -219,7 +219,7 @@ public class Run extends Application {
             if(!check)
             {
                 String newUser = popupBox(stage, pass);
-                PlayerDAO.getDAO().savePlayer(pass, stage);
+                PlayerDAO.getDAO().savePlayer(pass, newUser);
             }
         }
 
@@ -290,7 +290,7 @@ public class Run extends Application {
         }
         catch (Exception e) {
             System.out.println("DB connection failed " + e);
-            return;
+            return null;
         }
 
         //Statements are an interface representing SQL statements
