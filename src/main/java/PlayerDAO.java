@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class PlayerDAO {
     private static PlayerDAO playerDAOEntity;
@@ -45,7 +46,23 @@ public class PlayerDAO {
             insertStatement.executeUpdate();
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to save player: " + e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /** Checks if a player with the given id exists in the database.
+     * @return A boolean indicating whether or not the player exists.
+     * @param id The id to check for. */
+    public boolean playerExists(int id) {
+        try {
+            String existsString = "SELECT id FROM player WHERE id = ?";
+            PreparedStatement existsStatement = databaseConnection.prepareStatement(existsString);
+            existsStatement.setInt(1, id);
+            ResultSet queryResult = existsStatement.executeQuery();
+            return queryResult.next();
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }

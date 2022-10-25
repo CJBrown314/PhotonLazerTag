@@ -1,9 +1,8 @@
+import Entities.PlayerColumn;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.net.URISyntaxException;
-import java.sql.*;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -127,6 +126,19 @@ public class Run extends Application {
                     }
             );
 
+            /*Test countdown label*/
+            // Create Timer with a countdown starting at 100
+            Countdown counter = new Countdown(2, 0);
+            // Create a label and bind its text to the counters count property
+            Label count = new Label("");
+            count.setStyle("-fx-font-size: 40; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
+            count.textProperty().bind(counter.getCountProperty());
+            // Add the label to the center pane
+            centerPane.getChildren().add(count);
+            // Create counter thread and start the counter
+            Thread countThread = new Thread(counter);
+            countThread.start();
+
             //adds button and makes button functional
             Button button = new Button("Start Game");
             button.setOnAction(new EventHandler<ActionEvent>() {
@@ -138,13 +150,9 @@ public class Run extends Application {
             centerPane.getChildren().add(button);
 
             // create columns
-            //TableColumn<Player, String> greenteamplayers = new TableColumn<Player, String>("Green Team Players");
             greenteamplayers.setPrefWidth(root.getWidth() / 4);
-            //greenteamplayers.setCellValueFactory(cellData -> cellData.getValue().getPlayerID());
 
-            //TableColumn<Player, String> blueteamplayers = new TableColumn<Player, String>("Blue Team Players");
             blueteamplayers.setPrefWidth(root.getWidth() / 4);
-            //blueteamplayers.setCellValueFactory(cellData -> cellData.getValue().getPlayerID());
 
             for (int i = 0; i < TABLE_SIZE; i++) {
                 data.add(new PlayerColumn());
@@ -179,19 +187,14 @@ public class Run extends Application {
 
     public void submitForm(Stage stage, TableColumn greenteamplayers, TableColumn blueteamplayers)
     {
-        try{
-            scanDatabase();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
         int i = 0;
         while(greenteamplayers.getCellObservableValue(i).getValue() != "")
         {
             boolean check = true;
             int pass = Integer.parseInt((String)greenteamplayers.getCellObservableValue(i).getValue());
-            try {
-                check = checkDatabase(pass);
+            try{
+                check = PlayerDAO.getDAO().playerExists(pass);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -210,8 +213,8 @@ public class Run extends Application {
             boolean check = true;
             int pass = Integer.parseInt((String)blueteamplayers.getCellObservableValue(k).getValue());
             System.out.println("blue pass: " + pass);
-            try {
-                check = checkDatabase(pass);
+            try{
+                check = PlayerDAO.getDAO().playerExists(pass);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -247,80 +250,6 @@ public class Run extends Application {
         dialog.setScene(dialogScene);
         dialog.showAndWait();
         return un.getText();
-    }
-
-    //Connects to the postgresql database
-    private static Connection getConnection() throws URISyntaxException, SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://ec2-54-167-186-198.compute-1.amazonaws.com:5432/dft3j59ofknctu?password=ca9dd4b2c75d650ec6feaa7d00fdc21ed253cf047fe2a61e4112a24ba9b152a9&sslmode=require&user=nvxbgefwqaulsc");
-    }
-
-    public boolean checkDatabase(int y) throws Exception {
-        //Attempt a connection, and abort if it fails
-        Connection connection;
-        try {
-            connection = getConnection();
-            System.out.println("DB connection successful");
-        }
-        catch (Exception e) {
-            System.out.println("DB connection failed");
-            return false;
-        }
-
-        //Statements are an interface representing SQL statements
-        Statement stmt = connection.createStatement();
-
-        //Structure of updating table (Inside quotes, provide the SQL update statement)
-        //stmt.executeUpdate("");
-
-        //ResultSets are a table of data storing a result set
-        System.out.println(y);
-        ResultSet resultSet = stmt.executeQuery("SELECT id FROM player WHERE id="+ y);
-
-        //return true when id exists in query
-        boolean hasNext = resultSet.next();
-        return hasNext;
-    }
-
-    public ResultSet scanDatabase() throws Exception {
-        //Attempt a connection, and abort if it fails
-        Connection connection;
-        try {
-            connection = getConnection();
-            System.out.println("DB connection successful");
-        }
-        catch (Exception e) {
-            System.out.println("DB connection failed " + e);
-            return null;
-        }
-
-        //Statements are an interface representing SQL statements
-        Statement stmt = connection.createStatement();
-
-        //Structure of updating table (Inside quotes, provide the SQL update statement)
-        //stmt.executeUpdate("");
-
-        // Saving the players to the database
-        //PlayerDAO.getDAO().savePlayer(id, codename);
-
-        //ResultSets are a table of data storing a result set
-        //Below is an example of querying the whole player table
-        ResultSet resultSet = stmt.executeQuery("SELECT * FROM player");
-
-        //ResultSetMetaData stores info about table metadata (like column info)
-        ResultSetMetaData rsmd = resultSet.getMetaData();
-        int columnsNumber = rsmd.getColumnCount();
-
-        //Iterate through and print items of table
-        while (resultSet.next()) {
-            for (int i = 1; i <= columnsNumber; i++) {
-                if (i > 1) System.out.print(",  ");
-                String columnValue = resultSet.getString(i);
-                System.out.print(columnValue + " " + rsmd.getColumnName(i));
-            }
-            System.out.println("");
-        }
-
-        return resultSet;
     }
 
     public static void main(String[] args) throws Exception {
