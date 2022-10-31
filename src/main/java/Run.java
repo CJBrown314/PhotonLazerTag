@@ -126,25 +126,28 @@ public class Run extends Application {
                     }
             );
 
-            /*Test countdown label*/
-            // Create Timer with a countdown starting at 100
-            Countdown counter = new Countdown(2, 0);
-            // Create a label and bind its text to the counters count property
-            Label count = new Label("");
-            count.setStyle("-fx-font-size: 40; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
-            count.textProperty().bind(counter.getCountProperty());
-            // Add the label to the center pane
-            centerPane.getChildren().add(count);
-            // Create counter thread and start the counter
-            Thread countThread = new Thread(counter);
-            countThread.start();
-
+            
             //adds button and makes button functional
             Button button = new Button("Start Game");
             button.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     submitForm(stage, greenteamplayers, blueteamplayers);
+                    //button dissappears
+                    button.setVisible(false);
+                    //when start game is pushed timer starts
+                     /*Test countdown label*/
+                    // Create Timer with a countdown starting at 100
+                    Countdown counter = new Countdown(2, 0);
+                    // Create a label and bind its text to the counters count property
+                    Label count = new Label("");
+                    count.setStyle("-fx-font-size: 70; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
+                    count.textProperty().bind(counter.getCountProperty());
+                    // Add the label to the center pane
+                    centerPane.getChildren().add(count);
+                    // Create counter thread and start the counter
+                    Thread countThread = new Thread(counter);
+                    countThread.start();
                 }
             });
             centerPane.getChildren().add(button);
