@@ -16,9 +16,8 @@ public class Countdown extends Task<Integer> {
     @Override
     public Integer call() {
         Clock currentCount = COUNTDOWN;
-        updateMessage(String.valueOf(COUNTDOWN));
+        updateMessage(String.valueOf(currentCount.getMessage()));
         try {
-
             while (!currentCount.decrement().equals("0:0")) {
                 Thread.sleep(1000);
                 updateMessage(String.valueOf(currentCount.getMessage()));
