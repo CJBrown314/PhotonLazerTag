@@ -14,14 +14,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.*;
 import javafx.scene.image.*;
+import javafx.scene.input.KeyCode;
+
 import java.io.*;
 import javafx.geometry.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
 
-public class Run extends Application {
+
+public class Run extends Application{
 
     private TableView table = new TableView();
     private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
@@ -126,6 +132,19 @@ public class Run extends Application {
                     }
             );
 
+            scene.setOnKeyPressed(e -> {
+                if(e.getCode() == KeyCode.ESCAPE)
+                {
+                    System.exit(0);
+                }
+            });
+
+            spScene.setOnKeyPressed(e -> {
+                if(e.getCode() == KeyCode.ESCAPE)
+                {
+                    System.exit(0);
+                }
+            });
             
             //adds button and makes button functional
             Button button = new Button("Start Game");
@@ -138,7 +157,7 @@ public class Run extends Application {
                     //when start game is pushed timer starts
                      /*Test countdown label*/
                     // Create Timer with a countdown starting at 100
-                    Countdown counter = new Countdown(2, 0);
+                    Countdown counter = new Countdown(0, 10);
                     // Create a label and bind its text to the counters count property
                     Label count = new Label("");
                     count.setStyle("-fx-font-size: 70; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
@@ -148,8 +167,50 @@ public class Run extends Application {
                     // Create counter thread and start the counter
                     Thread countThread = new Thread(counter);
                     countThread.start();
+
+                    SplitPane actionPane = new SplitPane();
+            
+            
+                    VBox greenBox = new VBox(new Label("left box"));
+                    //greenBox.setPrefWidth(200);
+                    int i = 0;
+                    greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    while(greenteamplayers.getCellObservableValue(i).getValue() != "")
+                    {
+                        Label player = new Label((greenteamplayers.getCellObservableValue(i).getValue()) + "............. 0");
+                        greenBox.getChildren().addAll(player);
+                        i++;
+                    }
+                    VBox blueBox = new VBox(new Label("right box"));
+                    //blueBox.setPrefWidth(200);
+                    blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    int j = 0;
+                    while(blueteamplayers.getCellObservableValue(j).getValue() != "")
+                    {
+                        Label blueplayer = new Label((blueteamplayers.getCellObservableValue(j).getValue()) + "............. 0");
+                        blueBox.getChildren().addAll(blueplayer);
+                        j++;
+                    }
+                    VBox actionBox = new VBox(new Label("bottom Box"));
+                    Label action = new Label("Current Actions");
+                    actionBox.getChildren().addAll(action);
+                    actionBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#FED5D5"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    actionPane.getItems().addAll(greenBox,actionBox,blueBox);
+                    actionPane.setDividerPositions(.3,.7,1);
+                    Scene actionScene = new Scene(actionPane, 1366, 768);
+                    actionScene.setOnKeyPressed(e -> {
+                        if(e.getCode() == KeyCode.ESCAPE)
+                        {
+                            System.exit(0);
+                        }
+                    });
+                    PauseTransition newPause = new PauseTransition(Duration.seconds(10));
+                    newPause.setOnFinished(e -> stage.setScene(actionScene));
+                    newPause.play();
+                    stage.show();
                 }
             });
+
             centerPane.getChildren().add(button);
 
             // create columns
@@ -174,6 +235,10 @@ public class Run extends Application {
 
             root.setCenter(centerPane);
 
+            //create Action Player Scene
+
+            
+
             // set the scene 
             //splash scene first
             stage.setScene(spScene);
@@ -183,9 +248,12 @@ public class Run extends Application {
             pause.setOnFinished(e -> stage.setScene(scene));
             pause.play();
             stage.show();
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
+        
     }
 
     public void submitForm(Stage stage, TableColumn greenteamplayers, TableColumn blueteamplayers)
@@ -254,6 +322,7 @@ public class Run extends Application {
         dialog.showAndWait();
         return un.getText();
     }
+
 
     public static void main(String[] args) throws Exception {
         //Launch the Java application
