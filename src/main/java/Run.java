@@ -157,7 +157,7 @@ public class Run extends Application{
                     //when start game is pushed timer starts
                      /*Test countdown label*/
                     // Create Timer with a countdown starting at 100
-                    Countdown counter = new Countdown(0, 100);
+                    Countdown counter = new Countdown(0, 10);
                     // Create a label and bind its text to the counters count property
                     Label count = new Label("");
                     count.setStyle("-fx-font-size: 70; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
