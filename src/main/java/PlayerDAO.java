@@ -56,7 +56,7 @@ public class PlayerDAO {
      * @param id The id to check for. */
     public boolean playerExists(int id) {
         try {
-            String existsString = "SELECT id FROM player WHERE id = ?";
+            String existsString = "SELECT codename FROM player WHERE id = ?";
             PreparedStatement existsStatement = databaseConnection.prepareStatement(existsString);
             existsStatement.setInt(1, id);
             ResultSet queryResult = existsStatement.executeQuery();
@@ -64,6 +64,23 @@ public class PlayerDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /** Returns the player name for a given id
+     * @return A string for the player name of the given id
+     * @param id The id to check for. */
+    public String retrievePlayerName(int id) {
+        try {
+            String existsString = "SELECT codename FROM player WHERE id = ?";
+            PreparedStatement existsStatement = databaseConnection.prepareStatement(existsString);
+            existsStatement.setInt(1, id);
+            ResultSet queryResult = existsStatement.executeQuery();
+            queryResult.next();
+            return queryResult.getString(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Invalid ID for ID" + id;
         }
     }
 }

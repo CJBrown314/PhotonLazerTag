@@ -157,7 +157,7 @@ public class Run extends Application{
                     //when start game is pushed timer starts
                      /*Test countdown label*/
                     // Create Timer with a countdown starting at 100
-                    Countdown counter = new Countdown(0, 10);
+                    Countdown counter = new Countdown(0, 100);
                     // Create a label and bind its text to the counters count property
                     Label count = new Label("");
                     count.setStyle("-fx-font-size: 70; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
@@ -177,7 +177,7 @@ public class Run extends Application{
                     greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
                     while(greenteamplayers.getCellObservableValue(i).getValue() != "")
                     {
-                        Label player = new Label((greenteamplayers.getCellObservableValue(i).getValue()) + "............. 0");
+                        Label player = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((greenteamplayers.getCellObservableValue(i).getValue()))) + "............. 0");
                         greenBox.getChildren().addAll(player);
                         i++;
                     }
@@ -187,7 +187,7 @@ public class Run extends Application{
                     int j = 0;
                     while(blueteamplayers.getCellObservableValue(j).getValue() != "")
                     {
-                        Label blueplayer = new Label((blueteamplayers.getCellObservableValue(j).getValue()) + "............. 0");
+                        Label blueplayer = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((blueteamplayers.getCellObservableValue(j).getValue()))) + "............. 0");
                         blueBox.getChildren().addAll(blueplayer);
                         j++;
                     }
