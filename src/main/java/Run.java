@@ -171,7 +171,9 @@ public class Run extends Application{
                     SplitPane actionPane = new SplitPane();
             
             
-                    VBox greenBox = new VBox(new Label("left box"));
+                    Label greenlabel = new Label("Green Team:");
+                    greenlabel.setStyle("-fx-font-size: 30; -fx-text-fill: green; -fx-font-family: 'Comic Sans MS'");
+                    VBox greenBox = new VBox(greenlabel);
                     //greenBox.setPrefWidth(200);
                     int i = 0;
                     greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -181,7 +183,9 @@ public class Run extends Application{
                         greenBox.getChildren().addAll(player);
                         i++;
                     }
-                    VBox blueBox = new VBox(new Label("right box"));
+                    Label bluelabel = new Label("Blue Team:");
+                    bluelabel.setStyle("-fx-font-size: 30; -fx-text-fill: blue; -fx-font-family: 'Comic Sans MS'");
+                    VBox blueBox = new VBox(bluelabel);
                     //blueBox.setPrefWidth(200);
                     blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
                     int j = 0;
@@ -191,8 +195,11 @@ public class Run extends Application{
                         blueBox.getChildren().addAll(blueplayer);
                         j++;
                     }
-                    VBox actionBox = new VBox(new Label("bottom Box"));
-                    Label action = new Label("Current Actions");
+                    Label actionLabel = new Label("Player Actions:");
+                    actionLabel.setStyle("-fx-font-size: 30; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
+                    VBox actionBox = new VBox(actionLabel);
+                    Label action = new Label("Current Action");
+                    action.setStyle("-fx-font-size: 20; -fx-text-fill: black; -fx-font-family: 'Comic Sans MS'");
                     actionBox.getChildren().addAll(action);
                     actionBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#FED5D5"), CornerRadii.EMPTY, Insets.EMPTY)));
                     actionPane.getItems().addAll(greenBox,actionBox,blueBox);
