@@ -205,7 +205,12 @@ public class Run extends Application{
                         }
                     });
                     PauseTransition newPause = new PauseTransition(Duration.seconds(10));
-                    newPause.setOnFinished(e -> stage.setScene(actionScene));
+                    newPause.setOnFinished(e -> {
+                        Server server = new Server(7501);
+                        Thread serverThread = new Thread(server);
+                        serverThread.start();
+                        stage.setScene(actionScene);
+                    });
                     newPause.play();
                     stage.show();
                 }
