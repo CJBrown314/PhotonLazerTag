@@ -47,8 +47,8 @@ public class Server extends Task<Integer> {
     }
 
     public boolean handleEvent(PlayerTaggedEvent event) {
-        //do something
-        System.out.println(event);
+        System.out.println("Received event from client: " + event);
+        Run.addEvent(event);
         return true;
     }
 

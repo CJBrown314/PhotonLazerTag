@@ -1,5 +1,10 @@
+import DAO.PlayerDAO;
+import Entities.EventList;
 import Entities.PlayerColumn;
+import Entities.PlayerTaggedEvent;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -22,9 +27,6 @@ import javafx.scene.paint.*;
 import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
 
 
 public class Run extends Application{
@@ -32,6 +34,7 @@ public class Run extends Application{
     private TableView table = new TableView();
     private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
     private final int TABLE_SIZE = 16; // total number of table fields
+    private static final EventList events = new EventList(50);
 
     @Override
     public void start(Stage stage) {
@@ -209,6 +212,15 @@ public class Run extends Application{
                         Server server = new Server(7501);
                         Thread serverThread = new Thread(server);
                         serverThread.start();
+
+                        events.addListener(new ListChangeListener<PlayerTaggedEvent>() {
+                            @Override
+                            public void onChanged(Change<? extends PlayerTaggedEvent> change) {
+                                // This code runs everytime a new event is added to the events list.
+                                System.out.println(change);
+                            }
+                        });
+
                         stage.setScene(actionScene);
                     });
                     newPause.play();
@@ -241,8 +253,6 @@ public class Run extends Application{
             root.setCenter(centerPane);
 
             //create Action Player Scene
-
-            
 
             // set the scene 
             //splash scene first
@@ -328,6 +338,10 @@ public class Run extends Application{
         return un.getText();
     }
 
+    public static void addEvent(PlayerTaggedEvent event) {
+        //adds the event to the eventlist
+        Platform.runLater(() -> events.add(event));
+    }
 
     public static void main(String[] args) throws Exception {
         //Launch the Java application
