@@ -22,6 +22,8 @@ import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
 
 import java.io.*;
+import java.util.ArrayList;
+
 import javafx.geometry.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.Text;
@@ -172,29 +174,53 @@ public class Run extends Application{
                     countThread.start();
 
                     SplitPane actionPane = new SplitPane();
-            
-            
-                    VBox greenBox = new VBox(new Label("left box"));
-                    //greenBox.setPrefWidth(200);
-                    int i = 0;
-                    greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
-                    while(greenteamplayers.getCellObservableValue(i).getValue() != "")
+
+                    //Creating ArrayLists
+                    ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                    ArrayList<String> playerNames = new ArrayList<String>();
+                    ArrayList<Label> playerLines = new ArrayList<Label>();
+
+                    //Int counters
+                    int playerCount = 0;
+                    int greenCount = 0;
+
+                    //Load Array Lists
+                    int n = 0;
+                    while(greenteamplayers.getCellObservableValue(n).getValue() != "")
                     {
-                        Label player = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((greenteamplayers.getCellObservableValue(i).getValue()))) + "............. 0");
-                        greenBox.getChildren().addAll(player);
-                        i++;
+                        playerScores.add(0);
+                        playerNames.add(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((greenteamplayers.getCellObservableValue   (n).getValue()))));
+                        playerLines.add(new Label(playerNames.get(n) + ".............................." + playerScores.get(n)));
+                        n++;
+                        playerCount++;
+                        greenCount++;
                     }
-                    VBox blueBox = new VBox(new Label("right box"));
+                    n = 0;
+                    while(blueteamplayers.getCellObservableValue(n).getValue() != "")
+                    {
+                        playerScores.add(0);
+                        playerNames.add(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((blueteamplayers.getCellObservableValue   (n).getValue()))));
+                        playerLines.add(new Label(playerNames.get(n+greenCount) + ".............................." + playerScores.get(n+greenCount-1)));
+                        n++;
+                        playerCount++;
+                    }
+            
+                    VBox greenBox = new VBox();
+                    //greenBox.setPrefWidth(200);
+                    greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    for(int i = 0; i < greenCount; i++)
+                    {
+                        greenBox.getChildren().addAll(playerLines.get(i));
+                    }
+                    VBox blueBox = new VBox();
                     //blueBox.setPrefWidth(200);
                     blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
-                    int j = 0;
-                    while(blueteamplayers.getCellObservableValue(j).getValue() != "")
+                    for(int i = greenCount; i< playerCount ; i++)
                     {
-                        Label blueplayer = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((blueteamplayers.getCellObservableValue(j).getValue()))) + "............. 0");
-                        blueBox.getChildren().addAll(blueplayer);
-                        j++;
+                        blueBox.getChildren().addAll(playerLines.get(i));
                     }
-                    VBox actionBox = new VBox(new Label("bottom Box"));
+
+                    VBox actionBox = new VBox();
                     Label action = new Label("Current Actions");
                     actionBox.getChildren().addAll(action);
                     actionBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#FED5D5"), CornerRadii.EMPTY, Insets.EMPTY)));
