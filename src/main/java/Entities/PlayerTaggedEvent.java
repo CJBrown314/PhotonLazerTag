@@ -23,6 +23,14 @@ public class PlayerTaggedEvent {
         return TRANSMIT_ID;
     }
 
+    public String getTransmitPlayer() {
+        return TRANSMIT_PLAYER;
+    }
+    
+    public String getHitPlayer() {
+        return HIT_PLAYER;
+    }
+
     @Override
     public String toString() {
         return TRANSMIT_PLAYER + " hit " + HIT_PLAYER;

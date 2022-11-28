@@ -29,6 +29,7 @@ import javafx.scene.paint.*;
 import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import javafx.scene.control.Label;
 
 
 public class Run extends Application{
@@ -243,7 +244,40 @@ public class Run extends Application{
                             @Override
                             public void onChanged(Change<? extends PlayerTaggedEvent> change) {
                                 // This code runs everytime a new event is added to the events list.
-                                System.out.println(change);
+                                ObservableList<PlayerTaggedEvent> list = events.getList();
+                                System.out.println(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
+                                Label label = new Label(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
+                                actionBox.getChildren().add(1,label);
+                                for(int i = 0;i<playerNames.size(); i++)
+                                {
+                                    if(playerNames.get(i) == list.get(list.size()-1).getTransmitPlayer())
+                                    {
+                                        playerScores.set(i, playerScores.get(i)+50);
+                                        playerLines.set(i, new Label(playerNames.get(i) + "........................." + playerScores.get(i)));
+                                        // greenBox.getChildren().clear();
+                                        // blueBox.getChildren().clear();
+                                        // int greenCount = 0;
+                                        // int playerCount = 0;
+                                        // int n = 0;
+                                        // while(greenteamplayers.getCellObservableValue(n).getValue() != "")
+                                        // {
+                                        //     greenCount++;
+                                        // }
+                                        // n =0;
+                                        // while(blueteamplayers.getCellObservableValue(n).getValue() != "")
+                                        // {
+                                        //     playerCount++;
+                                        // }
+                                        // for(int j = 0; j < greenCount; j++)
+                                        // {
+                                        //     greenBox.getChildren().addAll(playerLines.get(j));
+                                        // }
+                                        // for(int j = greenCount; j< playerCount ; j++)
+                                        // {
+                                        //     blueBox.getChildren().addAll(playerLines.get(j));
+                                        // }
+                                    }
+                                }
                             }
                         });
 
