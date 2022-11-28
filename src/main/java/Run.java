@@ -1,5 +1,10 @@
+import DAO.PlayerDAO;
+import Entities.EventList;
 import Entities.PlayerColumn;
+import Entities.PlayerTaggedEvent;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -17,14 +22,14 @@ import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
 
 import java.io.*;
+import java.util.ArrayList;
+
 import javafx.geometry.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.ActionListener;
+import javafx.scene.control.Label;
 
 
 public class Run extends Application{
@@ -32,6 +37,7 @@ public class Run extends Application{
     private TableView table = new TableView();
     private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
     private final int TABLE_SIZE = 16; // total number of table fields
+    private static final EventList events = new EventList(50);
 
     @Override
     public void start(Stage stage) {
@@ -169,37 +175,68 @@ public class Run extends Application{
                     countThread.start();
 
                     SplitPane actionPane = new SplitPane();
-            
-            
-                    Label greenlabel = new Label("Green Team:");
-                    greenlabel.setStyle("-fx-font-size: 30; -fx-text-fill: green; -fx-font-family: 'Comic Sans MS'");
-                    VBox greenBox = new VBox(greenlabel);
-                    //greenBox.setPrefWidth(200);
-                    int i = 0;
-                    greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
-                    while(greenteamplayers.getCellObservableValue(i).getValue() != "")
+
+                    //Creating ArrayLists
+                    ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                    ArrayList<String> playerNames = new ArrayList<String>();
+                    ArrayList<Label> playerLines = new ArrayList<Label>();
+
+                    //Int counters
+                    int playerCount = 0;
+                    int greenCount = 0;
+
+                    //Load Array Lists
+                    int n = 0;
+                    while(greenteamplayers.getCellObservableValue(n).getValue() != "")
                     {
-                        Label player = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((greenteamplayers.getCellObservableValue(i).getValue()))) + "............. 0");
-                        greenBox.getChildren().addAll(player);
-                        i++;
+                        playerScores.add(0);
+                        playerNames.add(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((greenteamplayers.getCellObservableValue   (n).getValue()))));
+                        playerLines.add(new Label(playerNames.get(n) + ".............................." + playerScores.get(n)));
+                        n++;
+                        playerCount++;
+                        greenCount++;
                     }
-                    Label bluelabel = new Label("Blue Team:");
-                    bluelabel.setStyle("-fx-font-size: 30; -fx-text-fill: blue; -fx-font-family: 'Comic Sans MS'");
-                    VBox blueBox = new VBox(bluelabel);
+                    n = 0;
+                    while(blueteamplayers.getCellObservableValue(n).getValue() != "")
+                    {
+                        playerScores.add(0);
+                        playerNames.add(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((blueteamplayers.getCellObservableValue   (n).getValue()))));
+                        playerLines.add(new Label(playerNames.get(n+greenCount) + ".............................." + playerScores.get(n+greenCount-1)));
+                        n++;
+                        playerCount++;
+                    }
+            
+                    VBox greenBox = new VBox();
+                    //greenBox.setPrefWidth(200);
+                    greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    for(int i = 0; i < greenCount; i++)
+                    {
+                        greenBox.getChildren().addAll(playerLines.get(i));
+                    }
+                    VBox blueBox = new VBox();
                     //blueBox.setPrefWidth(200);
                     blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
-                    int j = 0;
-                    while(blueteamplayers.getCellObservableValue(j).getValue() != "")
+                    for(int i = greenCount; i< playerCount ; i++)
                     {
-                        Label blueplayer = new Label(PlayerDAO.getDAO().retrievePlayerName(Integer.parseInt((blueteamplayers.getCellObservableValue(j).getValue()))) + "............. 0");
-                        blueBox.getChildren().addAll(blueplayer);
-                        j++;
+                        blueBox.getChildren().addAll(playerLines.get(i));
                     }
-                    Label actionLabel = new Label("Player Actions:");
-                    actionLabel.setStyle("-fx-font-size: 30; -fx-text-fill: maroon; -fx-font-family: 'Comic Sans MS'");
-                    VBox actionBox = new VBox(actionLabel);
-                    Label action = new Label("Current Action");
-                    action.setStyle("-fx-font-size: 20; -fx-text-fill: black; -fx-font-family: 'Comic Sans MS'");
+
+                    VBox actionBox = new VBox();
+
+                    /*Game Timer*/
+                    // Create Timer with a countdown starting at 100
+                    Countdown gameClock = new Countdown(2,00 );
+                    // Create a label and bind its text to the counters count property
+                    Label timer = new Label("");
+                    timer.setStyle("-fx-font-size: 60; -fx-text-fill: black; -fx-font-family: 'Comic Sans MS'");
+                    timer.textProperty().bind(gameClock.getCountProperty());
+                    // Add the label to the center pane
+                    actionBox.getChildren().add(timer);
+                    // Create counter thread and start the counter
+                    Thread timerThread = new Thread(gameClock);
+                    timerThread.start();
+
+                    Label action = new Label("Current Actions");
                     actionBox.getChildren().addAll(action);
                     actionBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#FED5D5"), CornerRadii.EMPTY, Insets.EMPTY)));
                     actionPane.getItems().addAll(greenBox,actionBox,blueBox);
@@ -212,7 +249,54 @@ public class Run extends Application{
                         }
                     });
                     PauseTransition newPause = new PauseTransition(Duration.seconds(10));
-                    newPause.setOnFinished(e -> stage.setScene(actionScene));
+                    newPause.setOnFinished(e -> {
+                        Server server = new Server(7501);
+                        Thread serverThread = new Thread(server);
+                        serverThread.start();
+
+                        events.addListener(new ListChangeListener<PlayerTaggedEvent>() {
+                            @Override
+                            public void onChanged(Change<? extends PlayerTaggedEvent> change) {
+                                // This code runs everytime a new event is added to the events list.
+                                ObservableList<PlayerTaggedEvent> list = events.getList();
+                                System.out.println(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
+                                Label label = new Label(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
+                                actionBox.getChildren().add(1,label);
+                                for(int i = 0;i<playerNames.size(); i++)
+                                {
+                                    if(playerNames.get(i) == list.get(list.size()-1).getTransmitPlayer())
+                                    {
+                                        playerScores.set(i, playerScores.get(i)+50);
+                                        playerLines.set(i, new Label(playerNames.get(i) + "........................." + playerScores.get(i)));
+                                        // greenBox.getChildren().clear();
+                                        // blueBox.getChildren().clear();
+                                        // int greenCount = 0;
+                                        // int playerCount = 0;
+                                        // int n = 0;
+                                        // while(greenteamplayers.getCellObservableValue(n).getValue() != "")
+                                        // {
+                                        //     greenCount++;
+                                        // }
+                                        // n =0;
+                                        // while(blueteamplayers.getCellObservableValue(n).getValue() != "")
+                                        // {
+                                        //     playerCount++;
+                                        // }
+                                        // for(int j = 0; j < greenCount; j++)
+                                        // {
+                                        //     greenBox.getChildren().addAll(playerLines.get(j));
+                                        // }
+                                        // for(int j = greenCount; j< playerCount ; j++)
+                                        // {
+                                        //     blueBox.getChildren().addAll(playerLines.get(j));
+                                        // }
+                                    }
+                                }
+                            }
+                        });
+
+                        stage.setScene(actionScene);
+                    });
                     newPause.play();
                     stage.show();
                 }
@@ -243,8 +327,6 @@ public class Run extends Application{
             root.setCenter(centerPane);
 
             //create Action Player Scene
-
-            
 
             // set the scene 
             //splash scene first
@@ -330,6 +412,10 @@ public class Run extends Application{
         return un.getText();
     }
 
+    public static void addEvent(PlayerTaggedEvent event) {
+        //adds the event to the eventlist
+        Platform.runLater(() -> events.add(event));
+    }
 
     public static void main(String[] args) throws Exception {
         //Launch the Java application
