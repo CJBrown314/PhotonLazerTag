@@ -38,6 +38,10 @@ public class Run extends Application{
     private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
     private final int TABLE_SIZE = 16; // total number of table fields
     private static final EventList events = new EventList(50);
+    private int greenCount = 0;
+    private int playerCount = 0;
+    private VBox greenBox = new VBox();
+    private VBox blueBox = new VBox();
 
     @Override
     public void start(Stage stage) {
@@ -151,6 +155,8 @@ public class Run extends Application{
                     System.exit(0);
                 }
             });
+
+            
             
             //adds button and makes button functional
             Button button = new Button("Start Game");
@@ -182,8 +188,8 @@ public class Run extends Application{
                     ArrayList<Label> playerLines = new ArrayList<Label>();
 
                     //Int counters
-                    int playerCount = 0;
-                    int greenCount = 0;
+                    playerCount = 0;
+                    greenCount = 0;
 
                     //Load Array Lists
                     int n = 0;
@@ -196,6 +202,7 @@ public class Run extends Application{
                         playerCount++;
                         greenCount++;
                     }
+                    System.out.println("PlayerNames ArrayList After green: " + playerNames.toString());
                     n = 0;
                     while(blueteamplayers.getCellObservableValue(n).getValue() != "")
                     {
@@ -205,15 +212,16 @@ public class Run extends Application{
                         n++;
                         playerCount++;
                     }
+                    System.out.println("PlayerNames ArrayList After blue: " + playerNames.toString());
             
-                    VBox greenBox = new VBox();
+                    greenBox = new VBox();
                     //greenBox.setPrefWidth(200);
                     greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
                     for(int i = 0; i < greenCount; i++)
                     {
                         greenBox.getChildren().addAll(playerLines.get(i));
                     }
-                    VBox blueBox = new VBox();
+                    blueBox = new VBox();
                     //blueBox.setPrefWidth(200);
                     blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
                     for(int i = greenCount; i< playerCount ; i++)
@@ -250,7 +258,7 @@ public class Run extends Application{
                     });
                     PauseTransition newPause = new PauseTransition(Duration.seconds(10));
                     newPause.setOnFinished(e -> {
-                        Server server = new Server(7501);
+                        Server server = new Server(7505);
                         Thread serverThread = new Thread(server);
                         serverThread.start();
 
@@ -258,16 +266,38 @@ public class Run extends Application{
                             @Override
                             public void onChanged(Change<? extends PlayerTaggedEvent> change) {
                                 // This code runs everytime a new event is added to the events list.
+                                System.out.println("Hey, a new event was added!");
+                                System.out.println("THe list is now " + (events.getList().toString()));
                                 ObservableList<PlayerTaggedEvent> list = events.getList();
                                 System.out.println(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
                                 Label label = new Label(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
                                 actionBox.getChildren().add(1,label);
-                                for(int i = 0;i<playerNames.size(); i++)
+                                for(int i = 0; i< playerNames.size(); i++)
                                 {
-                                    if(playerNames.get(i) == list.get(list.size()-1).getTransmitPlayer())
+                                    System.out.println("Checking if " + playerNames.get(i) + " was the transmitter, which is " + (list.get(list.size()-1)).getTransmitPlayer());
+                                    if(playerNames.get(i).equals((list.get(list.size()-1)).getTransmitPlayer()))
                                     {
+                                        System.out.println("Attempting to adjust playname: " + playerNames.get(i) + " that equals " + list.get(list.size()-1).getTransmitPlayer());
                                         playerScores.set(i, playerScores.get(i)+50);
                                         playerLines.set(i, new Label(playerNames.get(i) + "........................." + playerScores.get(i)));
+                                        System.out.println("Updated playerScores: " + playerScores.toString());
+                                        System.out.println("PlayerNames: " + playerNames.toString());
+                                        
+                                        greenBox.getChildren().clear();
+                                        for(int j = 0; j < greenCount; j++)
+                                        {
+                                            greenBox.getChildren().addAll(playerLines.get(j));
+                                        }
+                                        
+                                        blueBox.getChildren().clear();
+                                        for(int j = greenCount; j< playerCount ; j++)
+                                        {
+                                            blueBox.getChildren().addAll(playerLines.get(j));
+                                        }
+
+                                        break;
+                                       // System.out.println("Updated playerLines: " + playerLines.toString());
+
                                         // greenBox.getChildren().clear();
                                         // blueBox.getChildren().clear();
                                         // int greenCount = 0;
