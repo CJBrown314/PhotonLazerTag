@@ -23,6 +23,7 @@ import javafx.scene.input.KeyCode;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.geometry.*;
 import javafx.scene.paint.*;
@@ -37,7 +38,7 @@ public class Run extends Application{
     private TableView table = new TableView();
     private final ObservableList<PlayerColumn> data = FXCollections.observableArrayList();
     private final int TABLE_SIZE = 16; // total number of table fields
-    private static final EventList events = new EventList(50);
+    private static final EventList events = new EventList(30);
     private int greenCount = 0;
     private int playerCount = 0;
     private VBox greenBox = new VBox();
@@ -217,6 +218,9 @@ public class Run extends Application{
                     greenBox = new VBox();
                     //greenBox.setPrefWidth(200);
                     greenBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#B2E6C3"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    Label GreenTeam = new Label("Green team score - 0");
+                    GreenTeam.setStyle("-fx-font-size: 35;");
+                    greenBox.getChildren().add(GreenTeam);
                     for(int i = 0; i < greenCount; i++)
                     {
                         greenBox.getChildren().addAll(playerLines.get(i));
@@ -224,6 +228,9 @@ public class Run extends Application{
                     blueBox = new VBox();
                     //blueBox.setPrefWidth(200);
                     blueBox.setBackground(new Background(new BackgroundFill(Color.valueOf("#C0E0FF"), CornerRadii.EMPTY, Insets.EMPTY)));
+                    Label BlueTeam = new Label("Blue team score - 0");
+                    BlueTeam.setStyle("-fx-font-size: 35;");
+                    blueBox.getChildren().add(BlueTeam);
                     for(int i = greenCount; i< playerCount ; i++)
                     {
                         blueBox.getChildren().addAll(playerLines.get(i));
@@ -257,18 +264,21 @@ public class Run extends Application{
                         }
                     });
                     PauseTransition newPause = new PauseTransition(Duration.seconds(10));
+                    AtomicReference<Thread> serverThread = new AtomicReference<>();
                     newPause.setOnFinished(e -> {
                         Server server = new Server(7501);
-                        Thread serverThread = new Thread(server);
-                        serverThread.start();
+                        serverThread.set(new Thread(server));
+                        serverThread.get().start();
 
                         events.addListener(new ListChangeListener<PlayerTaggedEvent>() {
                             @Override
                             public void onChanged(Change<? extends PlayerTaggedEvent> change) {
                                 // This code runs everytime a new event is added to the events list.
                                 ObservableList<PlayerTaggedEvent> list = events.getList();
-                                Label label = new Label(list.get(list.size()-1).getTransmitPlayer() + " hit " + list.get(list.size()-1).getHitPlayer());
-                                actionBox.getChildren().add(1,label);
+                                actionBox.getChildren().remove(1, actionBox.getChildren().size());
+                                for (PlayerTaggedEvent item : events.getList()) {
+                                    actionBox.getChildren().add(1, new Label(item.toString()));
+                                }
                                 for(int i = 0; i< playerNames.size(); i++)
                                 {
                                     if(playerNames.get(i).equals((list.get(list.size()-1)).getTransmitPlayer()))
@@ -277,16 +287,26 @@ public class Run extends Application{
                                         playerLines.set(i, new Label(playerNames.get(i) + "........................." + playerScores.get(i)));
                                         
                                         greenBox.getChildren().clear();
+                                        int greenScore = 0;
                                         for(int j = 0; j < greenCount; j++)
                                         {
+                                            greenScore += playerScores.get(j);
                                             greenBox.getChildren().addAll(playerLines.get(j));
                                         }
+                                        Label greenLabel = new Label("Green team score - " + greenScore);
+                                        greenLabel.setStyle("-fx-font-size: 35;");
+                                        greenBox.getChildren().add(0, greenLabel);
                                         
                                         blueBox.getChildren().clear();
+                                        int blueScore = 0;
                                         for(int j = greenCount; j< playerCount ; j++)
                                         {
+                                            blueScore += playerScores.get(j);
                                             blueBox.getChildren().addAll(playerLines.get(j));
                                         }
+                                        Label blueLabel = new Label("Blue team score - " + blueScore);
+                                        blueLabel.setStyle("-fx-font-size: 35;");
+                                        blueBox.getChildren().add(0, blueLabel);
 
                                         break;
                                     }
@@ -298,6 +318,9 @@ public class Run extends Application{
                     });
                     newPause.play();
                     stage.show();
+                    PauseTransition playTime = new PauseTransition(Duration.seconds(130));
+                    playTime.play();
+                    serverThread.get().interrupt();
                 }
             });
 
